@@ -1,0 +1,29 @@
+{
+    "name": "nbj/numbers",
+    "description": "A PHP library for easy and meaningful number manipulation",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Nikolaj Boel Jensen",
+            "email": "nbj@creationsftw.com"
+        }
+    ],
+    "require": {
+        "ext-bcmath": "*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "*",
+        "friendsofphp/php-cs-fixer": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Nbj\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    }
+}
