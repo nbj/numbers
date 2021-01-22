@@ -17,10 +17,10 @@ class NumbersDoesChainableMathTest extends TestCase
         $number = Number::create(100);
 
         // Act
-        $number = $number->add(400);
+        $result = $number->add(400);
 
         // Assert
-        $this->assertEquals('500', $number);
+        $this->assertEquals('500', $result);
     }
 
     /** @test */
@@ -30,10 +30,10 @@ class NumbersDoesChainableMathTest extends TestCase
         $number = Number::create(100);
 
         // Act
-        $number = $number->subtract(50);
+        $result = $number->subtract(50);
 
         // Assert
-        $this->assertEquals('50', $number);
+        $this->assertEquals('50', $result);
     }
 
     /** @test */
@@ -43,10 +43,10 @@ class NumbersDoesChainableMathTest extends TestCase
         $number = Number::create(100);
 
         // Act
-        $number = $number->multiplyBy(5);
+        $result = $number->multiplyBy(5);
 
         // Assert
-        $this->assertEquals('500', $number);
+        $this->assertEquals('500', $result);
     }
 
     /** @test */
@@ -56,10 +56,10 @@ class NumbersDoesChainableMathTest extends TestCase
         $number = Number::create(100);
 
         // Act
-        $number = $number->divideBy(5);
+        $result = $number->divideBy(5);
 
         // Assert
-        $this->assertEquals('20', $number);
+        $this->assertEquals('20', $result);
     }
 
     /** @test */
@@ -69,10 +69,36 @@ class NumbersDoesChainableMathTest extends TestCase
         $number = Number::create(100);
 
         // Act
-        $number = $number->modulus(80);
+        $result = $number->modulus(80);
 
         // Assert
-        $this->assertEquals('20', $number);
+        $this->assertEquals('20', $result);
+    }
+
+    /** @test */
+    public function a_number_does_exponentiation()
+    {
+        // Arrange
+        $number = Number::create(10);
+
+        // Act
+        $result = $number->powerOf(5);
+
+        // Assert
+        $this->assertEquals('100000', $result);
+    }
+
+    /** @test */
+    public function a_number_does_square_root()
+    {
+        // Arrange
+        $number = Number::create(25);
+
+        // Act
+        $result = $number->squareRoot();
+
+        // Assert
+        $this->assertEquals('5', $result);
     }
 
     /** @test */
@@ -100,14 +126,14 @@ class NumbersDoesChainableMathTest extends TestCase
         $number = Number::create(1000);
 
         // Act
-        $number = $number
+        $result = $number
             ->add(4000)
             ->divideBy(1000)
             ->multiplyBy(5)
             ->subtract(20);
 
         // Assert
-        $this->assertEquals(5, $number->asInteger());
+        $this->assertEquals(5, $result->asInteger());
     }
 
     /** @test */
@@ -126,5 +152,16 @@ class NumbersDoesChainableMathTest extends TestCase
 
         // Assert
         $this->assertNull($sanityCheck);
+    }
+
+    /** @test */
+    public function check_that_bcmath_scale_is_not_fucking_shit_up()
+    {
+        // Arrange
+        $number = Number::create(5);
+
+        // Assert
+        $this->assertEquals('2.5', $number->divideBy(2));
+        $this->assertEquals('2', $number->divideBy(2, 0));
     }
 }

@@ -7,11 +7,12 @@ use Closure;
 /**
  * Class Number
  *
- * @method Number add($number) Adds a number to the number instance
- * @method Number subtract($number) Subtracts a number from the number instance
- * @method Number multiplyBy($number) Multiplies the number instance by a number
- * @method Number divideBy($number) Divides the number instance by a number
- * @method Number modulus($number) Modulus the number instance by a number
+ * @method Number add($number, $precision = null) Adds a number to the number instance
+ * @method Number subtract($number, $precision = null) Subtracts a number from the number instance
+ * @method Number multiplyBy($number, $precision = null) Multiplies the number instance by a number
+ * @method Number divideBy($number, $precision = null) Divides the number instance by a number
+ * @method Number modulus($number, $precision = null) Modulus the number instance by a number
+ * @method Number powerOf($number, $precision = null) Raise the number instance to the power of a number
  */
 class Number
 {
@@ -21,6 +22,14 @@ class Number
      * @var string $value
      */
     protected $value;
+
+    /**
+     * The number of meaningful digits after the decimal point
+     * The default value is set to 100
+     *
+     * @var int $decimalPrecision
+     */
+    protected $decimalPrecision = 100;
 
     /**
      * Holds a list of all possible mathematical operations
@@ -33,6 +42,7 @@ class Number
         'multiplyBy' => MathOperations\Multiplication::class,
         'divideBy'   => MathOperations\Division::class,
         'modulus'    => MathOperations\Modulus::class,
+        'powerOf'    => MathOperations\Exponentiation::class,
     ];
 
     /**
@@ -58,17 +68,21 @@ class Number
      */
     public function __construct($numberValue)
     {
+        // Bail out if we are trying to construct a number
+        // from anything non-numeric
         if ( ! is_numeric($numberValue)) {
             throw new Exceptions\NotAValidNumberException;
         }
 
+        // As bcmath operates with strings only, we cast our
+        // value to a string from the get-go
         $this->value = (string) $numberValue;
     }
 
     /**
      * Floors the value of the number
      *
-     * @return $this
+     * @return static
      *
      * @throws Exceptions\NotAValidNumberException
      */
@@ -80,13 +94,25 @@ class Number
     /**
      * Ceils the value of the number
      *
-     * @return $this
+     * @return static
      *
      * @throws Exceptions\NotAValidNumberException
      */
     public function ceil()
     {
         return static::create(ceil($this->value));
+    }
+
+    /**
+     * Square roots the number
+     *
+     * @return static
+     *
+     * @throws Exceptions\NotAValidNumberException
+     */
+    public function squareRoot()
+    {
+        return static::create(bcsqrt($this->value, $this->decimalPrecision));
     }
 
     /**
@@ -116,13 +142,14 @@ class Number
      *
      * @param string $operation
      * @param mixed $number
+     * @param int $scale
      *
      * @return Number
      *
      * @throws Exceptions\ClosureMustReturnANumberInstanceException
      * @throws Exceptions\NotAValidNumberException
      */
-    protected function performCalculation($operation, $number)
+    protected function performCalculation($operation, $number, $scale)
     {
         // We need to handle $number if it is an instance of Closure
         if ($number instanceof Closure) {
@@ -132,7 +159,7 @@ class Number
                 throw new Exceptions\ClosureMustReturnANumberInstanceException;
             }
 
-            return $operation::calculate($this, $result);
+            return $operation::calculate($this, $result, $scale);
         }
 
         // Otherwise if $number is not an instance of Number, we convert it
@@ -141,7 +168,7 @@ class Number
         }
 
         // Do the correct math and return a new Number instance
-        return $operation::calculate($this, $number);
+        return $operation::calculate($this, $number, $scale);
     }
 
     /**
@@ -161,7 +188,17 @@ class Number
             throw new Exceptions\MathOperationDoesNotExistException($method);
         }
 
-        return $this->performCalculation($this->mathOperations[$method], $arguments[0]);
+        // Resetting the arguments array also returns the first item to us
+        // call this a hack as we do not want to depend on a collection package
+        $number = reset($arguments);
+        $precision = $this->decimalPrecision;
+
+        // If we have more than 1 argument we need to deconstruct the arguments array
+        if (count($arguments) > 1) {
+            [$number, $precision] = $arguments;
+        }
+
+        return $this->performCalculation($this->mathOperations[$method], $number, $precision);
     }
 
     /**

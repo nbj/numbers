@@ -4,15 +4,16 @@ namespace Nbj\MathOperations;
 
 use Nbj\Number;
 
-interface MathOperation
+abstract class MathOperation
 {
     /**
      * Makes the calculation of the specific MathOperation
      *
      * @param Number $numberA
      * @param Number $numberB
+     * @param int $scale
      *
-     * @return mixed
+     * @return Number
      */
-    public static function calculate(Number $numberA, Number $numberB);
+    abstract public static function calculate(Number $numberA, Number $numberB, $scale = 0);
 }
