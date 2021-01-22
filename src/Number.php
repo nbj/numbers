@@ -116,6 +116,76 @@ class Number
     }
 
     /**
+     * Checks if a number is larger than another
+     *
+     * @param mixed $number
+     *
+     * @return bool
+     *
+     * @throws Exceptions\NotAValidNumberException
+     */
+    public function isGreaterThan($number)
+    {
+        return $this->compareTo($number) === 1;
+    }
+
+    /**
+     * Checks if a number is larger than or equal to another
+     *
+     * @param mixed $number
+     *
+     * @return bool
+     *
+     * @throws Exceptions\NotAValidNumberException
+     */
+    public function isGreaterThanOrEqualTo($number)
+    {
+        return $this->compareTo($number) !== -1;
+    }
+
+    /**
+     * Checks if a number is less than another
+     *
+     * @param mixed $number
+     *
+     * @return bool
+     *
+     * @throws Exceptions\NotAValidNumberException
+     */
+    public function isLessThan($number)
+    {
+        return $this->compareTo($number) === -1;
+    }
+
+    /**
+     * Checks if a number is less than or equal to another
+     *
+     * @param mixed $number
+     *
+     * @return bool
+     *
+     * @throws Exceptions\NotAValidNumberException
+     */
+    public function isLessThanOrEqualTo($number)
+    {
+        return $this->compareTo($number) !== 1;
+    }
+
+    /**
+     * Checks if a number is less than another
+     *
+     * @param mixed $number
+     *
+     * @return bool
+     *
+     * @throws Exceptions\NotAValidNumberException
+     */
+    public function isEqualTo($number)
+    {
+        return $this->compareTo($number) === 0;
+    }
+
+    /**
      * Converts the value of the number to an integer
      *
      * Default operation will floor the number
@@ -135,40 +205,6 @@ class Number
     public function asFloat()
     {
         return (float) $this->value;
-    }
-
-    /**
-     * Performs the calculation based on the operation passed to it
-     *
-     * @param string $operation
-     * @param mixed $number
-     * @param int $scale
-     *
-     * @return Number
-     *
-     * @throws Exceptions\ClosureMustReturnANumberInstanceException
-     * @throws Exceptions\NotAValidNumberException
-     */
-    protected function performCalculation($operation, $number, $scale)
-    {
-        // We need to handle $number if it is an instance of Closure
-        if ($number instanceof Closure) {
-            $result = $number();
-
-            if ( ! $result instanceof Number) {
-                throw new Exceptions\ClosureMustReturnANumberInstanceException;
-            }
-
-            return $operation::calculate($this, $result, $scale);
-        }
-
-        // Otherwise if $number is not an instance of Number, we convert it
-        if ( ! $number instanceof Number) {
-            $number = static::create($number);
-        }
-
-        // Do the correct math and return a new Number instance
-        return $operation::calculate($this, $number, $scale);
     }
 
     /**
@@ -209,5 +245,62 @@ class Number
     public function __toString()
     {
         return $this->value;
+    }
+
+    /**
+     * Compares this number with another.
+     *
+     * 0 is returned if the two numbers are equal
+     * 1 if this number is larger than the one it is being compared against
+     * -1 if this number is less than the one it is being compared against
+     *
+     * @param mixed $number
+     *
+     * @return int
+     *
+     * @throws Exceptions\NotAValidNumberException
+     */
+    protected function compareTo($number)
+    {
+        // Make sure the passed number can be instantiated as a Number instance
+        if ( ! $number instanceof Number) {
+            $number = static::create($number);
+        }
+
+        return bccomp($this, $number, $this->decimalPrecision);
+    }
+
+    /**
+     * Performs the calculation based on the operation passed to it
+     *
+     * @param string $operation
+     * @param mixed $number
+     * @param int $scale
+     *
+     * @return Number
+     *
+     * @throws Exceptions\ClosureMustReturnANumberInstanceException
+     * @throws Exceptions\NotAValidNumberException
+     */
+    protected function performCalculation($operation, $number, $scale)
+    {
+        // We need to handle $number if it is an instance of Closure
+        if ($number instanceof Closure) {
+            $result = $number();
+
+            if ( ! $result instanceof Number) {
+                throw new Exceptions\ClosureMustReturnANumberInstanceException;
+            }
+
+            return $operation::calculate($this, $result, $scale);
+        }
+
+        // Otherwise if $number is not an instance of Number, we convert it
+        if ( ! $number instanceof Number) {
+            $number = static::create($number);
+        }
+
+        // Do the correct math and return a new Number instance
+        return $operation::calculate($this, $number, $scale);
     }
 }

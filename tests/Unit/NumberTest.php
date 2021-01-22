@@ -72,4 +72,62 @@ class NumberTest extends TestCase
         $this->assertEquals('100', $numberA->ceil());
         $this->assertEquals('101', $numberB->ceil());
     }
+
+    /** @test */
+    public function it_can_tell_if_it_is_larger_than_another_number()
+    {
+        // Arrange
+        $number = Number::create(10);
+
+        // Assert
+        $this->assertTrue($number->isGreaterThan(9));
+        $this->assertFalse($number->isGreaterThan(11));
+    }
+
+    /** @test */
+    public function it_can_tell_if_it_is_larger_than_or_equal_to_another_number()
+    {
+        // Arrange
+        $number = Number::create(10);
+
+        // Assert
+        $this->assertTrue($number->isGreaterThanOrEqualTo(9));
+        $this->assertTrue($number->isGreaterThanOrEqualTo(10));
+        $this->assertFalse($number->isGreaterThanOrEqualTo(11));
+    }
+
+    /** @test */
+    public function it_can_tell_if_it_is_less_than_another_number()
+    {
+        // Arrange
+        $number = Number::create(10);
+
+        // Assert
+        $this->assertTrue($number->isLessThan(11));
+        $this->assertFalse($number->isLessThan(9));
+    }
+
+    /** @test */
+    public function it_can_tell_if_it_is_less_than_or_equal_to_another_number()
+    {
+        // Arrange
+        $number = Number::create(10);
+
+        // Assert
+        $this->assertTrue($number->isLessThanOrEqualTo(11));
+        $this->assertTrue($number->isLessThanOrEqualTo(10));
+        $this->assertFalse($number->isLessThanOrEqualTo(9));
+    }
+
+    /** @test */
+    public function it_can_tell_if_it_is_equal_to_another_number()
+    {
+        // Arrange
+        $number = Number::create(10);
+
+        // Assert
+        $this->assertFalse($number->isEqualTo(11));
+        $this->assertTrue($number->isEqualTo(10));
+        $this->assertFalse($number->isEqualTo(9));
+    }
 }
