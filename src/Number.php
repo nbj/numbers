@@ -109,6 +109,17 @@ class Number
         return (float) $this->value;
     }
 
+    /**
+     * Performs the calculation based on the operation passed to it
+     *
+     * @param string $operation
+     * @param mixed $number
+     *
+     * @return Number
+     *
+     * @throws Exceptions\ClosureMustReturnANumberInstanceException
+     * @throws Exceptions\NotAValidNumberException
+     */
     protected function performCalculation($operation, $number)
     {
         // We need to handle $number if it is an instance of Closure
