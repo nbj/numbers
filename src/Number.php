@@ -11,6 +11,7 @@ use Closure;
  * @method Number subtract($number) Subtracts a number from the number instance
  * @method Number multiplyBy($number) Multiplies the number instance by a number
  * @method Number divideBy($number) Divides the number instance by a number
+ * @method Number modulus($number) Modulus the number instance by a number
  */
 class Number
 {
@@ -31,6 +32,7 @@ class Number
         'subtract'   => MathOperations\Subtraction::class,
         'multiplyBy' => MathOperations\Multiplication::class,
         'divideBy'   => MathOperations\Division::class,
+        'modulus'    => MathOperations\Modulus::class,
     ];
 
     /**

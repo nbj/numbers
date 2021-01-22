@@ -63,6 +63,19 @@ class NumbersDoesChainableMathTest extends TestCase
     }
 
     /** @test */
+    public function a_number_does_modulus()
+    {
+        // Arrange
+        $number = Number::create(100);
+
+        // Act
+        $number = $number->modulus(80);
+
+        // Assert
+        $this->assertEquals('20', $number);
+    }
+
+    /** @test */
     public function a_number_takes_exception_to_being_divided_by_zero()
     {
         // Arrange
