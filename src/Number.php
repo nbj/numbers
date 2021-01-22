@@ -2,8 +2,16 @@
 
 namespace Nbj;
 
-use Throwable;
+use Closure;
 
+/**
+ * Class Number
+ *
+ * @method Number add($number) Adds a number to the number instance
+ * @method Number subtract($number) Subtracts a number from the number instance
+ * @method Number multiplyBy($number) Multiplies the number instance by a number
+ * @method Number divideBy($number) Divides the number instance by a number
+ */
 class Number
 {
     /**
@@ -11,7 +19,19 @@ class Number
      *
      * @var string $value
      */
-    public $value;
+    protected $value;
+
+    /**
+     * Holds a list of all possible mathematical operations
+     *
+     * @var array $mathOperations
+     */
+    protected $mathOperations = [
+        'add'        => MathOperations\Addition::class,
+        'subtract'   => MathOperations\Subtraction::class,
+        'multiplyBy' => MathOperations\Multiplication::class,
+        'divideBy'   => MathOperations\Division::class,
+    ];
 
     /**
      * Named constructor for creating a new instance of a number
@@ -47,24 +67,24 @@ class Number
      * Floors the value of the number
      *
      * @return $this
+     *
+     * @throws Exceptions\NotAValidNumberException
      */
     public function floor()
     {
-        $this->value = (string) floor($this->value);
-
-        return $this;
+        return static::create(floor($this->value));
     }
 
     /**
      * Ceils the value of the number
      *
      * @return $this
+     *
+     * @throws Exceptions\NotAValidNumberException
      */
     public function ceil()
     {
-        $this->value = (string) ceil($this->value);
-
-        return $this;
+        return static::create(ceil($this->value));
     }
 
     /**
@@ -89,91 +109,46 @@ class Number
         return (float) $this->value;
     }
 
-    /**
-     * Adds adds a number to this number
-     *
-     * @param mixed $number
-     *
-     * @return $this
-     *
-     * @throws Exceptions\NotAValidNumberException
-     */
-    public function add($number)
+    protected function performCalculation($operation, $number)
     {
+        // We need to handle $number if it is an instance of Closure
+        if ($number instanceof Closure) {
+            $result = $number();
+
+            if ( ! $result instanceof Number) {
+                throw new Exceptions\ClosureMustReturnANumberInstanceException;
+            }
+
+            return $operation::calculate($this, $result);
+        }
+
+        // Otherwise if $number is not an instance of Number, we convert it
         if ( ! $number instanceof Number) {
             $number = static::create($number);
         }
 
-        $this->value = (string) bcadd($this, $number);
-
-        return $this;
+        // Do the correct math and return a new Number instance
+        return $operation::calculate($this, $number);
     }
 
     /**
-     * Subtracts a number from this number
+     * Delegates mathematical method calls to the right operations
      *
-     * @param mixed $number
+     * @param string $method
+     * @param array $arguments
      *
-     * @return $this
+     * @return Number
      *
-     * @throws Exceptions\NotAValidNumberException
+     * @throws Exceptions\ClosureMustReturnANumberInstanceException
+     * @throws Exceptions\MathOperationDoesNotExistException
      */
-    public function subtract($number)
+    public function __call($method, $arguments)
     {
-        if ( ! $number instanceof Number) {
-            $number = static::create($number);
+        if ( ! array_key_exists($method, $this->mathOperations)) {
+            throw new Exceptions\MathOperationDoesNotExistException($method);
         }
 
-        $this->value = (string) bcsub($this, $number);
-
-        return $this;
-    }
-
-    /**
-     * Multiplies this number by another number
-     *
-     * @param mixed $number
-     *
-     * @return $this
-     *
-     * @throws Exceptions\NotAValidNumberException
-     */
-    public function multiplyBy($number)
-    {
-        if ( ! $number instanceof Number) {
-            $number = static::create($number);
-        }
-
-        $this->value = (string) bcmul($this, $number);
-
-        return $this;
-    }
-
-    /**
-     * Divides this number by another number
-     *
-     * @param mixed $number
-     *
-     * @return $this
-     *
-     * @throws Exceptions\NotAValidNumberException
-     * @throws Exceptions\DivisionByZeroException
-     */
-    public function divideBy($number)
-    {
-        if ( ! $number instanceof Number) {
-            $number = static::create($number);
-        }
-
-        try {
-            $result = bcdiv($this, $number);
-        } catch (Throwable $throwable) {
-            throw new Exceptions\DivisionByZeroException($throwable);
-        }
-
-        $this->value = (string) $result;
-
-        return $this;
+        return $this->performCalculation($this->mathOperations[$method], $arguments[0]);
     }
 
     /**

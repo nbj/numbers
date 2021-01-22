@@ -6,6 +6,7 @@ use Exception;
 use Nbj\Number;
 use PHPUnit\Framework\TestCase;
 use Nbj\Exceptions\DivisionByZeroException;
+use Nbj\Exceptions\MathOperationDoesNotExistException;
 
 class NumbersDoesChainableMathTest extends TestCase
 {
@@ -16,7 +17,7 @@ class NumbersDoesChainableMathTest extends TestCase
         $number = Number::create(100);
 
         // Act
-        $number->add(400);
+        $number = $number->add(400);
 
         // Assert
         $this->assertEquals('500', $number);
@@ -29,7 +30,7 @@ class NumbersDoesChainableMathTest extends TestCase
         $number = Number::create(100);
 
         // Act
-        $number->subtract(50);
+        $number = $number->subtract(50);
 
         // Assert
         $this->assertEquals('50', $number);
@@ -42,7 +43,7 @@ class NumbersDoesChainableMathTest extends TestCase
         $number = Number::create(100);
 
         // Act
-        $number->multiplyBy(5);
+        $number = $number->multiplyBy(5);
 
         // Assert
         $this->assertEquals('500', $number);
@@ -55,7 +56,7 @@ class NumbersDoesChainableMathTest extends TestCase
         $number = Number::create(100);
 
         // Act
-        $number->divideBy(5);
+        $number = $number->divideBy(5);
 
         // Assert
         $this->assertEquals('20', $number);
@@ -86,7 +87,7 @@ class NumbersDoesChainableMathTest extends TestCase
         $number = Number::create(1000);
 
         // Act
-        $number
+        $number = $number
             ->add(4000)
             ->divideBy(1000)
             ->multiplyBy(5)
@@ -94,5 +95,23 @@ class NumbersDoesChainableMathTest extends TestCase
 
         // Assert
         $this->assertEquals(5, $number->asInteger());
+    }
+
+    /** @test */
+    public function a_number_takes_exception_to_mathematical_operations_that_does_not_exist()
+    {
+        // Arrange
+        $number = Number::create(100);
+        $sanityCheck = null;
+
+        // Act
+        try {
+            $sanityCheck = $number->thisIsNotAPermittedOperation(0);
+        } catch (Exception $exception) {
+            $this->assertInstanceOf(MathOperationDoesNotExistException::class, $exception);
+        }
+
+        // Assert
+        $this->assertNull($sanityCheck);
     }
 }
